@@ -1,4 +1,5 @@
 #include <opencv2/core.hpp>
+#include <opencv2/core/types.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <iostream>
@@ -70,6 +71,7 @@ int main()
 		morphologyEx(res2, morphimg, MORPH_CLOSE, elem);
 		//medianBlur(morphimg, morphimg, 11);
 		findContours(morphimg, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE);
+		vector<Rect> boundRectVec(contours.size());
 		for (int i = 0; i < contours.size(); i++) {
 			features f;
 			f.contourIndex = i;
@@ -78,12 +80,17 @@ int main()
 			f.circularity = (4 * 3.14 * f.area) / pow(f.perimeter, 2);
 			areaVec.push_back(f.area);
 			featVec.push_back(f);
+			boundRectVec[i] = boundingRect(contours[i]);
 		}
 
 		sort(areaVec.begin(), areaVec.end(), greater<int>());
 		for (int i = 0; i < featVec.size(); i++) {
 			if (featVec[i].area == areaVec[0]) {
 				drawContours(contourimg, contours, featVec[i].contourIndex, Scalar(0, 0, 255), 1);
+				rectangle(contourimg, boundRectVec[i].tl(), boundRectVec[i].br(), Scalar(0, 0, 255), 1);
+				int cx = boundRectVec[i].tl().x + (boundRectVec[i].br().x - boundRectVec[i].tl().x) / 2;
+				int cy = boundRectVec[i].br().y + (boundRectVec[i].tl ().y - boundRectVec[i].br().y) / 2;
+				drawMarker(contourimg, Point2f(cx, cy), Scalar(0, 0, 255), MARKER_TILTED_CROSS, 10, 2, 8);
 			}
 		}
 		areaVec.clear();
