@@ -3,6 +3,8 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 #include <iostream>
+#include <ctime>
+#include <cmath>
 
 using namespace cv;
 using namespace std;
@@ -29,8 +31,13 @@ int main()
 	Mat res;
 	Mat res2;
 	Mat morphimg;
+	int cx = 0; int cy = 0; double r = 0;
+	vector<int> points;
+	points.push_back(cx);
+	points.push_back(cy);
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
+	clock_t time_req = clock();
 	for (int i = 0; i < 100; i++) {
 		cap >> referenceframe;
 		cout << i << endl;
@@ -44,7 +51,7 @@ int main()
 		cap >> livecam;
 		//Mat mask(livecam.size(), CV_8UC1);
 		Mat contourimg(livecam.size(), CV_8UC3, Scalar(255, 255, 255));
-		waitKey(10);
+		waitKey(5);
 		absdiff(reference[0], livecam, diff);
 		//imshow("livecam", livecam);
 		//imshow("diff", diff);
@@ -85,11 +92,20 @@ int main()
 
 		sort(areaVec.begin(), areaVec.end(), greater<int>());
 		for (int i = 0; i < featVec.size(); i++) {
-			if (featVec[i].area == areaVec[0]) {
+			if (featVec[i].area == areaVec[0] && areaVec[0] > 300) {
+				cx = boundRectVec[i].tl().x + (boundRectVec[i].br().x - boundRectVec[i].tl().x) / 2;
+				cy = boundRectVec[i].br().y + (boundRectVec[i].tl().y - boundRectVec[i].br().y) / 2;
+				r = sqrt(pow(cx - points[0],2) + pow(cy - points[1],2));
+				cout << "cx = " << cx << " ,cy = " << cy << endl;
+				cout << "points[0] = " << points[0] << " ,points[1] = " << points[1] << endl;
+				cout << "r= " << r << endl;
+				time_req = (clock() - time_req) / 1000;
+				points.clear();
+				points.push_back(cx);
+				points.push_back(cy);
+				float v = r / time_req;
 				drawContours(contourimg, contours, featVec[i].contourIndex, Scalar(0, 0, 255), 1);
 				rectangle(contourimg, boundRectVec[i].tl(), boundRectVec[i].br(), Scalar(0, 0, 255), 1);
-				int cx = boundRectVec[i].tl().x + (boundRectVec[i].br().x - boundRectVec[i].tl().x) / 2;
-				int cy = boundRectVec[i].br().y + (boundRectVec[i].tl ().y - boundRectVec[i].br().y) / 2;
 				drawMarker(contourimg, Point2f(cx, cy), Scalar(0, 0, 255), MARKER_TILTED_CROSS, 10, 2, 8);
 			}
 		}
