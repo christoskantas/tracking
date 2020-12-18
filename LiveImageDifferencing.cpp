@@ -72,7 +72,7 @@ int main()
 			}
 		}
 		bitwise_and(diff, diff, res, mask);*/
-		inRange(diff, Scalar(35, 35, 35), Scalar(255, 255, 255), res2);
+		inRange(diff, Scalar(25, 25, 25), Scalar(255, 255, 255), res2);
 		imshow("result2", res2);
 		Mat elem = getStructuringElement(MORPH_ELLIPSE, Size(11, 11));
 		morphologyEx(res2, morphimg, MORPH_CLOSE, elem);
@@ -98,13 +98,13 @@ int main()
 				r = sqrt(pow(cx - points[0],2) + pow(cy - points[1],2));
 				cout << "cx = " << cx << " ,cy = " << cy << endl;
 				cout << "points[0] = " << points[0] << " ,points[1] = " << points[1] << endl;
-				cout << "r= " << r << endl;
+				cout << "r" << r << endl;
 				time_req = (clock() - time_req) / 1000;
 				points.clear();
 				points.push_back(cx);
 				points.push_back(cy);
 				float v = r / time_req;
-				drawContours(contourimg, contours, featVec[i].contourIndex, Scalar(0, 0, 255), 1);
+				drawContours(contourimg, contours, featVec[i].contourIndex, Scalar(0, 0, 255), -1);
 				rectangle(contourimg, boundRectVec[i].tl(), boundRectVec[i].br(), Scalar(0, 0, 255), 1);
 				drawMarker(contourimg, Point2f(cx, cy), Scalar(0, 0, 255), MARKER_TILTED_CROSS, 10, 2, 8);
 			}
